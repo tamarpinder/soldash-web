@@ -11,8 +11,15 @@ from dotenv import load_dotenv
 
 from models import GameResponse, PatternAnalysis, PatternComparison, ScraperStatus, ImportRequest, ImportResponse
 from database import DatabaseManager
-from collector import SolpotScraper
 from analysis import PatternAnalyzer
+
+# Optional import for scraper (not needed in production)
+try:
+    from collector import SolpotScraper
+    SCRAPER_AVAILABLE = True
+except ImportError:
+    SCRAPER_AVAILABLE = False
+    logger.warning("Playwright not available - /scrape endpoint disabled")
 
 # Load environment variables
 load_dotenv()
@@ -115,6 +122,7 @@ async def health_check():
 async def scrape_games(pages: int = Query(5, ge=1, le=10, description="Number of pages to scrape")):
     """
     Trigger manual scrape of Solpot fairness page.
+    NOTE: This endpoint is disabled in production (requires Playwright).
 
     Args:
         pages: Number of pages to scrape (1-10)
@@ -122,6 +130,12 @@ async def scrape_games(pages: int = Query(5, ge=1, le=10, description="Number of
     Returns:
         Scraper status with counts
     """
+    if not SCRAPER_AVAILABLE:
+        raise HTTPException(
+            status_code=501,
+            detail="Scraping not available in production. Use Chrome Extension or /api/v1/import endpoint."
+        )
+
     try:
         logger.info(f"Starting scrape of {pages} pages...")
 
