@@ -9,6 +9,13 @@ from typing import List, Optional
 import os
 from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 from models import GameResponse, PatternAnalysis, PatternComparison, ScraperStatus, ImportRequest, ImportResponse
 from database import DatabaseManager
 from analysis import PatternAnalyzer
@@ -20,13 +27,6 @@ try:
 except ImportError:
     SCRAPER_AVAILABLE = False
     logger.warning("Playwright not available - /scrape endpoint disabled")
-
-# Load environment variables
-load_dotenv()
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
