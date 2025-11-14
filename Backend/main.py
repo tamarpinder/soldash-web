@@ -35,11 +35,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS - Allow all origins for DevTools scraper
+# Configure CORS
+cors_origins = os.getenv("CORS_ORIGINS", "*")
+if cors_origins != "*":
+    # Split comma-separated origins if multiple provided
+    cors_origins = [origin.strip() for origin in cors_origins.split(",")]
+else:
+    cors_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (including solpot.com for DevTools scraper)
-    allow_credentials=False,  # Must be False when allow_origins is ["*"]
+    allow_origins=cors_origins,
+    allow_credentials=False if cors_origins == ["*"] else True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
